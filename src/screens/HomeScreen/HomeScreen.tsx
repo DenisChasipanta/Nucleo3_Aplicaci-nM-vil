@@ -43,7 +43,7 @@ export const HomeScreen = () => {
             );
         } catch (error) {
             console.error('Error al cerrar sesión:', error);
-            // Aquí podrías mostrar un mensaje de error al usuario
+            
         }
     };
     return (
