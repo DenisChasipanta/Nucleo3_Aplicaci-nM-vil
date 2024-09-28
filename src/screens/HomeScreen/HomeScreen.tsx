@@ -65,10 +65,24 @@ export const HomeScreen = () => {
     //Función: actualizar la información del usuario autenticado
     const handleUpdateUser = async () => {
         try {
+<<<<<<< HEAD
             await updateProfile(userData!,
                 { displayName: formUser.name });
         } catch (e) {
             console.log(e);
+=======
+            await signOut(auth);
+            // Navegar de vuelta a la pantalla de inicio de sesión
+            navigation.dispatch(
+                CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: 'Login' }],
+                })
+            );
+        } catch (error) {
+            console.error('Error al cerrar sesión:', error);
+            
+>>>>>>> d6287fd737abe7c506b737f14a47447b31bcfd30
         }
         //ocultar modal de edición
         setshowModalProfile(false);
