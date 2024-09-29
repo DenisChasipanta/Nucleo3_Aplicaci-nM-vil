@@ -53,7 +53,8 @@ export const LoginScreen = () => {
                 formLogin.email,
                 formLogin.password
             );
-            console.log(reponse);
+            navigation.dispatch(CommonActions.navigate({name: 'Home'}));
+            //console.log(reponse);
         } catch (e) {
             console.log(e);
             setshowMesagge({

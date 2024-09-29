@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Button, Divider, IconButton, Modal, Portal, Snackbar, Text, TextInput } from 'react-native-paper'
 import { styles } from '../../../theme/styles';
 import { View } from 'react-native';
-import { dbRealTime } from '../../../config/firebaseConfig';
+import { auth, dbRealTime } from '../../../config/firebaseConfig';
 import { push, ref, set } from 'firebase/database';
 
 //interface - Pops (propiedades que enviamos de un componente padre a un componente hijo)
@@ -50,7 +50,9 @@ export const NewCategoryComponent = ({ showModalCategory, setshowModalCategory }
         }
         //console.log(formCategory);
         //1. crear o direccionar a la tabla de la BDD
+        //const dbRef= ref (dbRealTime, 'colecciones/'+ auth.currentUser?.uid);
         const dbRef= ref (dbRealTime, 'colecciones');
+
         //2. crear una colección que agrege los datos en la dbRef
         const saveCollection = push(dbRef);
         //3. almacenar los datos en la BDD

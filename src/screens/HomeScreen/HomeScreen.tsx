@@ -3,10 +3,14 @@ import { FlatList, ImageBackground, View } from 'react-native'
 import { Avatar, Button, Divider, FAB, IconButton, Modal, Portal, Text, TextInput } from 'react-native-paper'
 import { styles } from '../../theme/styles';
 import { onAuthStateChanged, signOut, updateCurrentUser, updateProfile } from 'firebase/auth';
-import { auth } from '../../config/firebaseConfig';
+import { auth, dbRealTime } from '../../config/firebaseConfig';
 import firebase from '@firebase/auth'
 import { CategoryCardComponent } from './components/CategoryCardComponent';
 import { NewCategoryComponent } from './components/NewCategoryComponent';
+import { onValue, ref } from 'firebase/database';
+import { NativeScreen } from 'react-native-screens';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+
 
 
 //Interface - FormUser
@@ -15,7 +19,7 @@ interface FormUser {
 }
 
 //Inteface - Colecciones
-interface Category {
+export interface Category {
     id: string,
     code: string,
     category: string,
@@ -24,6 +28,8 @@ interface Category {
 }
 
 export const HomeScreen = () => {
+    //Hook de navegación
+    const navigation = useNavigation();
     //Hook useState: cambiar el estado del formulario
     const [formUser, setFormUser] = useState<FormUser>({
         name: ""
@@ -32,22 +38,7 @@ export const HomeScreen = () => {
     const [userData, setuserData] = useState<firebase.User | null>(null);
 
     //hook useSate: gestionar la lista de productos
-    const [cotegories, setcotegories] = useState<Category[]>([
-        {
-            id: '1',
-            code: '4326ggg',
-            category: 'Pelicula',
-            name: 'El Rey leon',
-            description: 'Me parecio una pelicula muy buena'
-        },
-        {
-            id: '2',
-            code: '1udh33',
-            category: 'Musica',
-            name: 'Hola',
-            description: 'Muy buena'
-        }
-    ]);
+    const [cotegories, setcotegories] = useState<Category[]>([]);
 
     //Hook useState: permitir que el modal de usuario se visualice o no 
     const [showModalProfile, setshowModalProfile] = useState<boolean>(false);
@@ -59,30 +50,17 @@ export const HomeScreen = () => {
     useEffect(() => {
         setuserData(auth.currentUser);
         setFormUser({ name: auth.currentUser?.displayName ?? '' })
-
+        //Llamar la función para la lista de collecciones
+        getAllCollection();
     }, []);
 
     //Función: actualizar la información del usuario autenticado
     const handleUpdateUser = async () => {
         try {
-<<<<<<< HEAD
             await updateProfile(userData!,
                 { displayName: formUser.name });
         } catch (e) {
             console.log(e);
-=======
-            await signOut(auth);
-            // Navegar de vuelta a la pantalla de inicio de sesión
-            navigation.dispatch(
-                CommonActions.reset({
-                    index: 0,
-                    routes: [{ name: 'Login' }],
-                })
-            );
-        } catch (error) {
-            console.error('Error al cerrar sesión:', error);
-            
->>>>>>> d6287fd737abe7c506b737f14a47447b31bcfd30
         }
         //ocultar modal de edición
         setshowModalProfile(false);
@@ -91,6 +69,41 @@ export const HomeScreen = () => {
     //Función actualizar el estado del formulario
     const handleSetValues = (key: string, value: string) => {
         setFormUser({ ...formUser, [key]: value })
+    }
+
+    //Función : obtener los productos ára listarlos
+    const getAllCollection = () => {
+        //1. Direccionar a la tabla de la BDD
+        //const dbRef = ref(dbRealTime, 'colecciones/' + auth.currentUser?.uid);
+        const dbRef = ref(dbRealTime, 'colecciones');
+        //2. acceder a la data
+        onValue(dbRef, (snapshot) => {
+            //3. capturar la data
+            const data = snapshot.val();  //Obtener la data en un formato esperado
+            //4. obtener las keys de cada valor
+            const getKeys = Object.keys(data);
+            //5. crear un arreglo para almacenar la coleccion
+            const listCollection: Category[] = [];
+            //6. recorrer las keys para acceder a cada coleccion
+            getKeys.forEach((key) => {
+                const value = { ...data[key], id: key }
+                listCollection.push(value);
+            });
+            //7. Actualizar la data obtenida en el arreglo hook state
+            setcotegories(listCollection);
+        })
+    }
+    //Función: Cerrar Sesión
+    const handleSingOuth= async()=>{
+        try{
+        await signOut(auth);
+        //Recetear las rutas
+        navigation.dispatch(CommonActions.reset({index:0, routes:[{name:'Login'}]}));
+        setshowModalProfile(false); 
+        }catch (e){
+            console.log(e);            
+        }   
+
     }
 
     return (
@@ -116,7 +129,7 @@ export const HomeScreen = () => {
                     <View>
                         <FlatList
                             data={cotegories}
-                            renderItem={({ item }) => <CategoryCardComponent />}
+                            renderItem={({ item }) => <CategoryCardComponent collection={item} />}
                             keyExtractor={item => item.id}
                         />
                     </View>
@@ -148,14 +161,22 @@ export const HomeScreen = () => {
                         value={userData?.email!}
                     />
                     <Button mode='contained' onPress={handleUpdateUser}>Actualizar</Button>
+                    <View style={styles.sinOut}>
+                        <IconButton
+                            icon="logout-variant"
+                            size={30}
+                            mode='contained'
+                            onPress={handleSingOuth}
+                        />
+                    </View>
                 </Modal>
             </Portal>
-            <FAB            
+            <FAB
                 style={styles.fab}
-                icon="plus"                
+                icon="plus"
                 onPress={() => setshowModalCategory(true)}
             />
-            <NewCategoryComponent showModalCategory={showModalCategory} setshowModalCategory={setshowModalCategory}/>
+            <NewCategoryComponent showModalCategory={showModalCategory} setshowModalCategory={setshowModalCategory} />
         </>
     )
 }

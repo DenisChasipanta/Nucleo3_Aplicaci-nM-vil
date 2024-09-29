@@ -41,10 +41,6 @@ export const styles = StyleSheet.create({
         alignItems: "center",
         color: "#fdfefe"
     },
-    signOutButton: {
-        marginTop: 20,
-        color: "#fdfefe"
-    },
     iconHeader: {
         alignItems: "center",
         flex: 1
@@ -68,7 +64,25 @@ export const styles = StyleSheet.create({
         margin: 16,
         right: 0,
         bottom: 0,
+    },
+    rootDeatil:{
+        flex:1,
+        marginTop: 20,        
+        padding: 20,
+        gap:20
+    },
+    botonesEditar:{
+        color: "#03ab0b"
+    },
+    botonEliminar:{
+        color: "#de2040"
+    },
+    sinOut:{
+        marginTop:25,
+        alignItems:"center",
+        color: "#fdfefe"
     }
+    
 
 })
 
