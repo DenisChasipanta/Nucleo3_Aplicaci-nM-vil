@@ -76,7 +76,7 @@ export const HomeScreen = () => {
         //1. Direccionar a la tabla de la BDD
         //const dbRef = ref(dbRealTime, 'colecciones/' + auth.currentUser?.uid);
         const dbRef = ref(dbRealTime, 'colecciones');
-        //2. acceder a la data
+        //2. acceder a la data..
         onValue(dbRef, (snapshot) => {
             //3. capturar la data
             const data = snapshot.val();  //Obtener la data en un formato esperado
